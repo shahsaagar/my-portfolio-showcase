@@ -30,8 +30,9 @@ jobs:
         run: |
           cat > /tmp/render-pages-shell.mjs <<'EOF'
           import { mkdir, writeFile } from "node:fs/promises";
+          import { pathToFileURL } from "node:url";
 
-          const server = await import("./.output/server/index.mjs");
+          const server = await import(pathToFileURL(`${process.cwd()}/.output/server/index.mjs`).href);
           const context = { waitUntil() {}, passThroughOnException() {} };
           const response = await server.default.fetch(
             new Request("http://localhost/my-portfolio-showcase/"),
