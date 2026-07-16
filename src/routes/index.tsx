@@ -355,12 +355,12 @@ function SkillsTile() {
         {skillGroups.map((g) => (
           <div
             key={g.title}
-            className="rounded-lg border border-border/60 bg-background/40 p-4"
+            className="min-w-0 rounded-lg border border-border/60 bg-background/40 p-4"
           >
             <p className="font-serif text-sm text-foreground">{g.title}</p>
-            <p className="mt-2 text-[12px] leading-[1.7] text-foreground/70">
+            <p className="mt-2 text-[12px] leading-[1.7] text-foreground/70 break-words">
               {g.items.map((s, i) => (
-                <span key={s} className="whitespace-nowrap">
+                <span key={s}>
                   {s}
                   {i < g.items.length - 1 && (
                     <span className="text-[var(--gold)]"> · </span>
