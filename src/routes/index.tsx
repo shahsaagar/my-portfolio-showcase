@@ -499,7 +499,6 @@ function Index() {
         </main>
         <Footer />
       </div>
-      <ResumeChatbot />
     </div>
   );
 }
