@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Sidebar } from "../components/portfolio/Nav";
 import { Footer } from "../components/portfolio/Sections";
+import { ResumeChatbot } from "../components/chatbot/ResumeChatbot";
 import {
   achievements,
   certifications,
