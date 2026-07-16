@@ -1,63 +1,40 @@
-## Goal
+# Resume AI Chatbot
 
-Get `https://shahsaagar.github.io/my-portfolio-showcase/` serving the portfolio via the GitHub Actions workflow.
+Add a floating chat widget on the portfolio homepage that answers visitor questions about Sagar's experience, skills, certifications, and impact — and can produce a quick résumé summary on demand.
 
-## Why the last run failed
+## What the user sees
 
-The `deploy.yml` workflow copied `dist/client/*` and expected an `index.html` inside it. TanStack Start's default build renders HTML on a server (Cloudflare Workers) — `dist/client/` only contains JS/CSS/assets, no HTML. GitHub Pages serves static files only, so the copy step failed and nothing was published.
+- A small "Ask about my résumé" button pinned to the bottom-right of the page.
+- Clicking it opens a chat panel with:
+  - A short intro from the assistant ("Hi, I'm Sagar's résumé assistant…").
+  - Suggested prompts: *Summarize his experience*, *What programs has he led?*, *Which certifications?*, *Is he a fit for a TPM role?*.
+  - A text input + send button, streamed responses, and a "New chat" reset.
+- Answers stream token-by-token, rendered as markdown.
+- Mobile-friendly (full-height sheet on small screens, floating panel on desktop).
 
-The repo also has a second workflow (`static.yml`) that uploads the raw repository as the site — it would publish source code, not a working app. It needs to be removed.
+## How it works
 
-## Plan
+- The chatbot is grounded in the existing `src/components/portfolio/data.ts` (profile, experience, achievements, skills, certifications, education). No database, no vector search — the whole résumé is small enough to inject into the system prompt.
+- Conversation is **one conversation, no persistence** (fresh on reload). Keeps scope tight and avoids a DB just for a portfolio widget.
+- Powered by **Lovable AI Gateway** using the default `google/gemini-3-flash-preview` model via the AI SDK. No user API keys needed — `LOVABLE_API_KEY` is auto-provisioned server-side.
+- System prompt constrains the model to: answer only from the provided résumé data, decline unrelated questions politely, keep tone professional, and offer to connect via email for anything it can't answer.
 
-**1. Switch the production build to static prerendering**
+## Technical outline
 
-Update `vite.config.ts` to force the Nitro `static` preset and set a build-time base path:
+1. **Server route** `src/routes/api/chat.ts`
+   - POST handler using AI SDK `streamText` + `toUIMessageStreamResponse`.
+   - Reads `LOVABLE_API_KEY` from `process.env`, builds Lovable gateway provider.
+   - System prompt = fixed instructions + serialized résumé data from `data.ts`.
+2. **Gateway helper** `src/lib/ai-gateway.server.ts`
+   - Standard `createLovableAiGatewayProvider` helper from the AI SDK Lovable Gateway pattern.
+3. **Chat UI** built with AI Elements (`conversation`, `message`, `prompt-input`, `shimmer`) installed via `bunx ai-elements@latest add ...`.
+   - `src/components/chatbot/ResumeChat.tsx` — the panel (uses `useChat` with `DefaultChatTransport` pointing at `/api/chat`).
+   - `src/components/chatbot/ChatLauncher.tsx` — the floating button + open/close state, rendered from `src/routes/index.tsx`.
+   - Styled to match the existing emerald/gold/serif design system (no generic Sparkles icon; use a serif "Ask" mark or MessageCircle icon tinted with `--emerald`).
+4. **Deps**: `ai`, `@ai-sdk/react`, `@ai-sdk/openai-compatible`, `zod` (via bun); plus AI Elements components.
 
-```ts
-export default defineConfig({
-  tanstackStart: { server: { entry: "server" } },
-  nitro: { preset: "static" },
-  vite: { base: process.env.PAGES_BASE ?? "/" },
-});
-```
+## Out of scope
 
-The Lovable-hosted preview ignores these overrides (the wrapper forces Cloudflare inside Lovable builds), so the in-app preview is unaffected. Only CI builds use `static`.
-
-**2. Teach the router about the sub-path**
-
-GitHub Pages serves under `/my-portfolio-showcase/`. Add `basepath: import.meta.env.BASE_URL` to the router in `src/router.tsx` so links and asset URLs resolve correctly there and stay `/` locally.
-
-**3. Rewrite `.github/workflows/deploy.yml`**
-
-```yaml
-- run: bun install --frozen-lockfile
-- run: PAGES_BASE=/my-portfolio-showcase/ bun run build
-- run: |
-    mkdir -p _site
-    cp -r .output/public/* _site/
-    cp _site/index.html _site/404.html
-    touch _site/.nojekyll
-- uses: actions/upload-pages-artifact@v3
-  with: { path: _site }
-```
-
-The `static` preset emits prerendered HTML into `.output/public/`. Copying `index.html` to `404.html` gives SPA fallback for client-side routes.
-
-**4. Delete `.github/workflows/static.yml`**
-
-Prevents the duplicate broken run and the "publish whole repo" mistake.
-
-**5. Trigger a fresh run**
-
-Lovable syncs these edits to GitHub automatically; the push kicks off `Deploy to GitHub Pages`. I'll poll the Actions API and, once green, fetch the live URL to confirm the portfolio renders.
-
-## Risks / caveats
-
-- Prerendering is safe here because there's a single `index.tsx` route and no `createServerFn` usage. Adding server functions or auth later would break static export — you'd need to move to Cloudflare Pages/Workers or the Lovable-published URL.
-- The `basepath` change means links must use TanStack Router's `<Link>` (already the case). Hardcoded `/foo` `<a href>` values would break on Pages.
-- If you ever rename the repo, `PAGES_BASE` in the workflow must be updated to match.
-
-## Alternative (one-click)
-
-If you'd rather skip the static-conversion work, say "publish" and I'll ship it to a `.lovable.app` URL immediately — no workflow, no base-path gymnastics, and server features stay available.
+- No thread history, no login, no database.
+- No résumé file upload — grounding uses the structured data already in the repo.
+- No voice / image input.
