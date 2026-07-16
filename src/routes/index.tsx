@@ -490,6 +490,7 @@ function Index() {
             <AboutTile />
             <ImpactTile />
             <ExperienceTile />
+            <TimelineTile />
             <SkillsTile />
             <EducationTile />
             <ContactTile />
