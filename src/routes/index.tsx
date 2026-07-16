@@ -276,6 +276,69 @@ function ExperienceTile() {
   );
 }
 
+function TimelineTile() {
+  const items = [...experience].reverse().map((r) => {
+    const { start, end } = extractYear(r.period);
+    return { start, end, company: r.company, title: r.title };
+  });
+  return (
+    <Tile
+      id="timeline"
+      className="md:col-span-12"
+      eyebrow="Project Timeline"
+      num="03·"
+    >
+      <h2 className="mb-8 font-serif text-2xl md:text-3xl text-foreground">
+        Two decades, <em className="italic text-[var(--emerald)]">one</em> continuous line.
+      </h2>
+
+      {/* Vertical timeline */}
+      <ol className="relative">
+        {/* spine */}
+        <span
+          aria-hidden
+          className="absolute left-4 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[var(--gold)]/60 via-border to-transparent md:-translate-x-1/2"
+        />
+        {items.map((it, i) => {
+          const side = i % 2 === 0 ? "md:pr-[calc(50%+1.5rem)] md:text-right" : "md:pl-[calc(50%+1.5rem)] md:ml-auto";
+          return (
+            <li
+              key={it.company + it.start}
+              className={`relative pl-10 md:pl-0 pb-8 last:pb-0 ${side}`}
+            >
+              {/* node */}
+              <span
+                aria-hidden
+                className="absolute left-4 md:left-1/2 top-1.5 h-3 w-3 -translate-x-1/2 rounded-full bg-[var(--emerald)] ring-4 ring-background"
+              />
+              <div className="rounded-xl border border-border bg-background/40 p-4">
+                <div
+                  className={`flex items-baseline gap-2 ${
+                    i % 2 === 0 ? "md:justify-end" : ""
+                  }`}
+                >
+                  <span className="font-serif text-xl text-[var(--emerald-deep)] leading-none">
+                    {it.start}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                    → {it.end}
+                  </span>
+                </div>
+                <h3 className="mt-2 font-serif text-base text-foreground leading-tight">
+                  {it.company}
+                </h3>
+                <p className="mt-1 text-xs text-[var(--emerald)] italic">
+                  {it.title}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </Tile>
+  );
+}
+
 function SkillsTile() {
   return (
     <Tile
@@ -427,6 +490,7 @@ function Index() {
             <AboutTile />
             <ImpactTile />
             <ExperienceTile />
+            <TimelineTile />
             <SkillsTile />
             <EducationTile />
             <ContactTile />
