@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Nav } from "../components/portfolio/Nav";
+import { Sidebar } from "../components/portfolio/Nav";
 import {
   About,
   Achievements,
@@ -39,17 +39,19 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Nav />
-      <main>
-        <Hero />
-        <About />
-        <Achievements />
-        <Experience />
-        <Skills />
-        <Education />
-        <Contact />
-      </main>
-      <Footer />
+      <Sidebar />
+      <div className="lg:ml-[var(--sidebar-width)]">
+        <main className="mx-auto max-w-4xl">
+          <Hero />
+          <About />
+          <Achievements />
+          <Experience />
+          <Skills />
+          <Education />
+          <Contact />
+        </main>
+        <Footer />
+      </div>
     </div>
   );
 }
