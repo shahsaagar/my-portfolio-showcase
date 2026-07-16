@@ -4,6 +4,4 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
-  nitro: { preset: "static" },
-  vite: { base: process.env.PAGES_BASE ?? "/" },
 });
