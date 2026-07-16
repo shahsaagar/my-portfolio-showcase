@@ -277,7 +277,7 @@ function ExperienceTile() {
 }
 
 function TimelineTile() {
-  const items = [...experience].reverse().map((r) => {
+  const items = experience.map((r) => {
     const { start, end } = extractYear(r.period);
     return { start, end, company: r.company, title: r.title };
   });
