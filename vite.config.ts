@@ -25,7 +25,7 @@ export default defineConfig({
     prerender: {
       crawlLinks: true,
       failOnError: false,
-      routes: ["/"],
+        routes: [base],
     },
   },
 });
