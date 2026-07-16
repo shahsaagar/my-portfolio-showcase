@@ -19,7 +19,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VITE_BASE_PATH: /my-portfolio-showcase/
-      NITRO_PRESET: static
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -27,6 +26,28 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run build
+      - name: Generate static Pages shell
+        run: |
+          cat > /tmp/render-pages-shell.mjs <<'EOF'
+          import { mkdir, writeFile } from "node:fs/promises";
+          import { pathToFileURL } from "node:url";
+
+          const server = await import(pathToFileURL(`${process.cwd()}/.output/server/index.mjs`).href);
+          const context = { waitUntil() {}, passThroughOnException() {} };
+          const response = await server.default.fetch(
+            new Request("http://localhost/my-portfolio-showcase/"),
+            {},
+            context,
+          );
+
+          if (!response.ok) {
+            throw new Error(`Failed to render static shell: ${response.status} ${await response.text()}`);
+          }
+
+          await mkdir(".output/public", { recursive: true });
+          await writeFile(".output/public/index.html", await response.text());
+          EOF
+          bun /tmp/render-pages-shell.mjs
       - name: SPA fallback + .nojekyll
         run: |
           touch .output/public/.nojekyll
