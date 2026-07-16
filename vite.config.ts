@@ -12,6 +12,7 @@ export default defineConfig({
   },
   nitro: {
     preset: process.env.NITRO_PRESET || "cloudflare-module",
+    // @ts-expect-error passed through to nitro() at runtime
     prerender: {
       crawlLinks: true,
       failOnError: false,
