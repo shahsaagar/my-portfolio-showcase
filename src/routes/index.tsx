@@ -1,24 +1,55 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Nav } from "../components/portfolio/Nav";
+import {
+  About,
+  Achievements,
+  Contact,
+  Education,
+  Experience,
+  Footer,
+  Hero,
+  Skills,
+} from "../components/portfolio/Sections";
+import { profile } from "../components/portfolio/data";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.name,
+  jobTitle: profile.title,
+  email: `mailto:${profile.email}`,
+  telephone: profile.phone,
+  address: { "@type": "PostalAddress", addressLocality: "Pune", addressCountry: "IN" },
+  url: profile.github,
+  sameAs: [profile.github, profile.linkedin].filter((u) => u && u !== "#"),
+};
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify(jsonLd),
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background text-foreground">
+      <Nav />
+      <main>
+        <Hero />
+        <About />
+        <Achievements />
+        <Experience />
+        <Skills />
+        <Education />
+        <Contact />
+      </main>
+      <Footer />
     </div>
   );
 }
