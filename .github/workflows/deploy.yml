@@ -23,15 +23,21 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run build
-      - name: Copy client build for Pages
+      - name: Build (static prerender)
+        env:
+          PAGES_BASE: /my-portfolio-showcase/
+        run: bun run build
+      - name: Assemble Pages artifact
         run: |
-          # TanStack Start emits the browser bundle to dist/client.
-          # GitHub Pages serves static files only, so we publish that folder
-          # and add a SPA fallback via 404.html.
           mkdir -p _site
-          cp -r dist/client/* _site/
-          cp _site/index.html _site/404.html
+          if [ -d .output/public ]; then
+            cp -r .output/public/. _site/
+          else
+            cp -r dist/client/. _site/
+          fi
+          if [ -f _site/index.html ]; then
+            cp _site/index.html _site/404.html
+          fi
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
