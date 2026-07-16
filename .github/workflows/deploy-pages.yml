@@ -28,7 +28,7 @@ jobs:
       - run: bun run build
       - name: Generate static Pages shell
         run: |
-          bun <<'EOF'
+          cat > /tmp/render-pages-shell.mjs <<'EOF'
           import { mkdir, writeFile } from "node:fs/promises";
 
           const server = await import("./.output/server/index.mjs");
@@ -46,6 +46,7 @@ jobs:
           await mkdir(".output/public", { recursive: true });
           await writeFile(".output/public/index.html", await response.text());
           EOF
+          bun /tmp/render-pages-shell.mjs
       - name: SPA fallback + .nojekyll
         run: |
           touch .output/public/.nojekyll
