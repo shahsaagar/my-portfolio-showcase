@@ -8,7 +8,7 @@ export default defineConfig({
   },
   tanstackStart: {
     server: { entry: "server" },
-    pages: [{ path: base }],
+    pages: [{ path: "/" }],
   },
   nitro: {
     preset: process.env.NITRO_PRESET || "cloudflare-module",
@@ -16,7 +16,7 @@ export default defineConfig({
     prerender: {
       crawlLinks: true,
       failOnError: false,
-      routes: [base],
+      routes: ["/"],
     },
   },
 });
